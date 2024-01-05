@@ -1,0 +1,4 @@
+{
+  "@org/team-name1": "https://example.com/webhook/abc123",
+  "@org/team-name2": "https://example.com/webhook/def456"
+}
