@@ -3,8 +3,12 @@ import os
 import requests
 
 def main():
-    # Define the default config path and check for an environment variable override
-    config_path = os.getenv('NOTIFICATIONS_CONFIG_PATH', 'notifications_config.json')
+    # Define the default config path
+    default_config_path = 'notifications_config.json'
+    
+    # Check for the action input first, fall back to the original environment variable,
+    # and then to the default path if neither is provided
+    config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or default_config_path
 
     # Load the event data
     event_path = os.getenv('GITHUB_EVENT_PATH')

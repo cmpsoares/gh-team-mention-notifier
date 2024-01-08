@@ -1,0 +1,10 @@
+name: 'Github Team Mention Notifier'
+description: 'Notifies communication platforms via webhooks when a team is mentioned in Github.'
+inputs:
+  config-path:
+    description: 'Path to the configuration JSON file.'
+    required: false
+    default: 'notifications_config.json'
+runs:
+  using: 'python'
+  main: 'src/notify_teams.py'
