@@ -20,7 +20,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Notify Teams
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.0
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.1
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed
