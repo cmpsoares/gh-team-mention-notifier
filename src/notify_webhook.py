@@ -3,12 +3,8 @@ import os
 import requests
 
 def main():
-    # Define the default config path
-    default_config_path = 'notifications_config.json'
-    
-    # Check for the action input first, fall back to the original environment variable,
-    # and then to the default path if neither is provided
-    config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or default_config_path
+    # Define the path for the team secrets configuration
+    config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or 'team_secrets_config.json'
 
     # Load the event data
     event_path = os.getenv('GITHUB_EVENT_PATH')
@@ -19,34 +15,48 @@ def main():
     with open(event_path, 'r') as event_file:
         event = json.load(event_file)
 
-    # Extract relevant data based on the type of event
-    comment_body = ''
-    html_url = ''
-    if 'comment' in event:
-        comment_body = event['comment']['body']
-        html_url = event['comment']['html_url']
-    elif 'pull_request' in event:
-        comment_body = event['pull_request']['body']
-        html_url = event['pull_request']['html_url']
+    # Check if it's an assignment event for issues or pull requests
+    is_assigned_issue = event.get('issue') and event.get('action') == 'assigned'
+    is_assigned_pr = event.get('pull_request') and event.get('action') == 'assigned'
 
-    # Check if the configuration file exists
+    # Determine if the team is assigned
+    team_assigned = False
+    if is_assigned_issue or is_assigned_pr:
+        assignees = event.get('issue', {}).get('assignees', []) + event.get('pull_request', {}).get('assignees', [])
+        for assignee in assignees:
+            if assignee.get('login').lower() == team_id:  # You might need a more robust check here
+                team_assigned = True
+                break
+
+    # Load the team secrets configuration
     if not os.path.exists(config_path):
         print(f"Configuration file not found at {config_path}.")
         return
 
-    # Load the notifications configuration
     with open(config_path, 'r') as file:
-        webhooks = json.load(file)
+        team_secrets = json.load(file)
 
-    # Send notification if the team is mentioned
-    for team_mention, webhook_url in webhooks.items():
-        if team_mention in comment_body:
-            payload = {"text": f"Team {team_mention} mentioned in GitHub: {html_url}"}
+    # Send notifications based on the team secrets configuration
+    for team in team_secrets:
+        org = team['org']
+        team_id = team['team_id'].lower()
+        webhook_secret_name = team['webhook_secret_name']
+        target_team_name = team.get('target_team_name', f"@{team_id}")  # Use target_team_name if provided, else default to team_id
+        webhook_url = os.getenv(webhook_secret_name)
+
+        if not webhook_url:
+            print(f"No webhook URL found for {org}/{team_id} (secret {webhook_secret_name}).")
+            continue
+
+        mention_tag = f"@{org}/{team_id}"
+        if mention_tag in comment_body or team_assigned:
+            message = f"{target_team_name} mentioned in GitHub: {html_url}" if mention_tag in comment_body else f"{target_team_name} assigned to an issue/PR in GitHub: {html_url}"
+            payload = {"text": message}
             response = requests.post(webhook_url, json=payload)
             if response.status_code == 200:
-                print(f"Notification sent successfully to {team_mention}")
+                print(f"Notification sent successfully to {target_team_name}")
             else:
-                print(f"Failed to send notification to {team_mention}")
+                print(f"Failed to send notification to {target_team_name}")
 
 if __name__ == "__main__":
     main()

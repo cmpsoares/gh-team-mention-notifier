@@ -1,17 +1,23 @@
-name: Test Action
-
-on: [push]
+name: Team Mention Notification
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [submitted]
+  pull_request:
+    types: [opened, reopened, assigned]
+  issues:
+    types: [opened, assigned]
 
 jobs:
-    test:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v2
-  
-        - name: Run the Action
-          run: python src/notify_webhook.py
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            NOTIFICATIONS_CONFIG_PATH: 'test/config.json'  # Your test path
-  
+  notification_job:
+    runs-on: ubuntu-latest
+    name: Notify when team mentioned
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Notify Teams
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.0
+      env:
+        TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
+        # Add more environment variables as needed

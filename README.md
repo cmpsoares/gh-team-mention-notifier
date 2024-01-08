@@ -1,21 +1,57 @@
 # GitHub Team Mention Notifier (gh-team-mention-notifier)
 
-A GitHub Action for notifying communication platforms via webhooks when a team is mentioned in issues, PRs, or comments. Compatible with Slack, Microsoft Teams, and other webhook-enabled services.
+`gh-team-mention-notifier` is a GitHub Action designed to notify specified communication platforms via webhooks when a team is mentioned or assigned in issues, PRs, or comments. It's compatible with Slack, Microsoft Teams, and other webhook-enabled services.
 
-## Configuration
+## Features
 
-1. Copy `notifications_config.json.example` to `notifications_config.json`.
-2. Fill in the real webhook URLs for your teams.
+- **Team Mention and Assignment Detection**: Detects mentions and assignments of teams in comments of issues, pull requests, and direct assignments.
+- **Dynamic Configuration**: Custom configuration allows for dynamic mapping of team mentions to webhook URLs via environment variables.
+- **Multiple Platform Support**: Compatible with any service that accepts incoming webhooks.
 
-## Setting Up Secrets
+## Getting Started
 
-Ensure you set up the following secrets in your GitHub repository:
+### Prerequisites
 
-- `GITHUB_TOKEN`: Your GitHub authentication token.
+- A GitHub repository where you can set up Actions.
+- Docker environment as the action runs in a Docker container.
+- Webhook URLs from the platforms (Slack, Microsoft Teams, etc.) where you want to send notifications.
 
-## Usage
+### Setup
 
-Add a workflow file to your `.github/workflows` directory:
+#### 1. **Create and Configure the Configuration File**
+
+Duplicate the `notifications_config.json.example` file and rename it to `notifications_config.json`. Fill in the mappings of your team mentions to the environment variable names for your webhook URLs. Optionally, include a different target team name for the webhook message.
+
+```json
+[
+    {
+        "org": "github_org",
+        "team_id": "team1",
+        "webhook_secret_name": "TEAM1_WEBHOOK",
+        "target_team_name": "@DifferentNameInTargetSystem"
+    },
+    {
+        "org": "github_org",
+        "team_id": "team2",
+        "webhook_secret_name": "TEAM2_WEBHOOK"
+    }
+    // Add more team mappings as needed
+]
+```
+
+This file will be used by the GitHub Action to determine which webhook URLs (stored as secrets) correspond to which team mentions.
+
+#### 2. **Commit the Configuration File**
+
+Commit the `notifications_config.json` file to your repository so the GitHub Action can access it. As this file contains only references to the secrets and not the actual webhook URLs, it's safe to commit.
+
+#### 3. **Set Up Secrets**
+
+For each team, set up a secret in your repository settings containing the webhook URL. The secret name should match the `webhook_secret_name` you've provided in `notifications_config.json`.
+
+### Usage
+
+In your GitHub workflow file (e.g., `.github/workflows/notify.yml`), use the action like this:
 
 ```yaml
 name: Team Mention Notification
@@ -25,19 +61,35 @@ on:
   pull_request_review_comment:
     types: [submitted]
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, assigned]
+  issues:
+    types: [opened, assigned]
 
 jobs:
-  notify:
+  notification_job:
     runs-on: ubuntu-latest
+    name: Notify when team mentioned or assigned
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Notify Teams
-        run: python src/notify_webhook.py
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Notify Teams
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.1
+      with:
+        config-path: 'notifications_config.json'
+      env:
+        TEAM1_WEBHOOK: ${{ secrets.TEAM1_WEBHOOK }}
+        TEAM2_WEBHOOK: ${{ secrets.TEAM2_WEBHOOK }}
+        # Add more environment variables as needed
 ```
 
 ## Contributing
-Contributions are welcome! Please feel free to submit a pull request.
+
+Contributions to `gh-team-mention-notifier` are welcome! Please feel free to report issues, suggest features, or submit pull requests.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Acknowledgements
+
+Thank you to all the contributors and users of `gh-team-mention-notifier`. Your support and feedback are greatly appreciated.

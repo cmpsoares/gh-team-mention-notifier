@@ -1,4 +1,14 @@
-{
-  "@org/team-name1": "https://example.com/webhook/abc123",
-  "@org/team-name2": "https://example.com/webhook/def456"
-}
+[
+    {
+        "org": "github_org",
+        "team_id": "team1",
+        "webhook_secret_name": "TEAM1_WEBHOOK",
+        "target_team_name": "@DifferentNameInTargetSystem"
+    },
+    {
+        "org": "github_org",
+        "team_id": "team2",
+        "webhook_secret_name": "TEAM2_WEBHOOK"
+    }
+    // Add more team mappings as needed
+]

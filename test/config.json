@@ -1,3 +1,7 @@
-{
-    "@cmpsoares/test": "https://fake-webhook.cmpsoares.com"
-}
+[
+    {
+        "org": "cmpsoares",
+        "team_id": "test",
+        "webhook_secret_name": "TEST_FAKE_SECRET"
+    }
+]
