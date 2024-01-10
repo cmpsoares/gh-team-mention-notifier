@@ -1,9 +1,11 @@
 name: Team Mention Notification Test
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Docker Workflow"]  # The name of your Docker workflow
+    types:
+      - completed
+    branches: [main]
   issue_comment:
     types: [created, edited]
   pull_request_review_comment:

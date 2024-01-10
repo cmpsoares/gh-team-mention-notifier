@@ -16,4 +16,4 @@ RUN ls -la /app/src/
 RUN pip install --no-cache-dir requests
 
 # Run the script
-ENTRYPOINT ["python", "./src/notify_webhook.py"]
+ENTRYPOINT ["python", "/src/notify_webhook.py"]
