@@ -11,4 +11,4 @@ inputs:
     default: 'notifications_config.json'
 runs:
   using: 'docker'
-  image: 'Dockerfile'
+  image: 'docker://cmpsoares/gh-team-mention-notifier:v1.0.4'
