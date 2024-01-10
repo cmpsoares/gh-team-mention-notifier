@@ -43,12 +43,15 @@ def main():
     with open(config_path, 'r') as file:
         team_secrets = json.load(file)
 
+    # Check if there are any teams to notify
+    notification_sent = False
+
     # Send notifications based on the team secrets configuration
     for team in team_secrets:
         org = team['org']
         team_id = team['team_id'].lower()
         webhook_secret_name = team['webhook_secret_name']
-        target_team_name = team.get('target_team_name', f"@{team_id}")  # Use target_team_name if provided, else default to team_id
+        target_team_name = team.get('target_team_name', f"@{team_id}")
         webhook_url = os.getenv(webhook_secret_name)
 
         if not webhook_url:
@@ -62,8 +65,12 @@ def main():
             response = requests.post(webhook_url, json=payload)
             if response.status_code == 200:
                 print(f"Notification sent successfully to {target_team_name}")
+                notification_sent = True
             else:
                 print(f"Failed to send notification to {target_team_name}")
+
+    if not notification_sent:
+        print("No relevant team mentions or assignments found, no notifications sent.")
 
 if __name__ == "__main__":
     main()
