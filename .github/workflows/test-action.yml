@@ -22,8 +22,6 @@ jobs:
     steps:
     - name: Run container (from main branch code)
       uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:latest
-      with:
-        args: "python /app/src/notify_webhook.py"
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed
@@ -34,8 +32,7 @@ jobs:
     steps:
     - name: Run container (from latest release)
       uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:v1.0.4
-      with:
-        args: "python /app/src/notify_webhook.py"
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed
+    
