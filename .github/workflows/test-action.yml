@@ -19,7 +19,7 @@ jobs:
     name: Notify when team mentioned (main branch)
     steps:
     - name: Run container (from main branch code)
-      uses: docker://ghcr.io/${{ github.repository_owner }}/gh-team-mention-notifier:latest
+      uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:latest
       with:
         args: "python /app/src/notify_webhook.py"
       env:
@@ -31,7 +31,7 @@ jobs:
     name: Notify when team mentioned (latest release)
     steps:
     - name: Run container (from latest release)
-      uses: docker://ghcr.io/${{ github.repository_owner }}/gh-team-mention-notifier:v1.0.4
+      uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:v1.0.4
       with:
         args: "python /app/src/notify_webhook.py"
       env:
