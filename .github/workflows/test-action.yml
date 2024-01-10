@@ -2,7 +2,7 @@ name: Team Mention Notification Test
 
 on:
   workflow_run:
-    workflows: ["build-and-push"]  # The name of your Docker workflow
+    workflows: ["docker-publish"]  # The name of your Docker workflow
     types:
       - completed
     branches: [main]
