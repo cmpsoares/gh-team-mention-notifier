@@ -31,8 +31,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Notify when team mentioned (latest release)
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
     - name: Notify Teams (from latest release)
       uses: cmpsoares/gh-team-mention-notifier@v1.0.3
       with:
