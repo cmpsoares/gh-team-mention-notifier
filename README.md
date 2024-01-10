@@ -57,13 +57,13 @@ In your GitHub workflow file (e.g., `.github/workflows/notify.yml`), use the act
 name: Team Mention Notification
 on:
   issue_comment:
-    types: [created]
+    types: [created, edited]
   pull_request_review_comment:
-    types: [submitted]
+    types: [submitted, edited]
   pull_request:
-    types: [opened, reopened, assigned]
+    types: [opened, reopened, assigned, edited, synchronize]
   issues:
-    types: [opened, assigned]
+    types: [opened, assigned, edited]
 
 jobs:
   notification_job:
@@ -73,7 +73,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Notify Teams
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.1
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.2
       with:
         config-path: 'notifications_config.json'
       env:

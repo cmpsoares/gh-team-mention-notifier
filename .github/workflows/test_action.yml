@@ -4,13 +4,13 @@ on:
     branches:
       - main
   issue_comment:
-    types: [created]
+    types: [created, edited]
   pull_request_review_comment:
-    types: [submitted]
+    types: [submitted, edited]
   pull_request:
-    types: [opened, reopened, assigned]
+    types: [opened, reopened, assigned, edited, synchronize]
   issues:
-    types: [opened, assigned]
+    types: [opened, assigned, edited]
 
 jobs:
   notification_job:
@@ -20,7 +20,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Notify Teams
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.1
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.2
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed
