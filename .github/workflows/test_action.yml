@@ -1,4 +1,4 @@
-name: Team Mention Notification
+name: Team Mention Notification Test
 on:
   push:
     branches:
@@ -13,13 +13,25 @@ on:
     types: [opened, assigned, edited]
 
 jobs:
-  notification_job:
+  notification_job_trunk:
     runs-on: ubuntu-latest
-    name: Notify when team mentioned
+    name: Notify when team mentioned (main branch)
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Notify Teams
+    - name: Notify Teams (from main)
+      uses: cmpsoares/gh-team-mention-notifier@main
+      env:
+        TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
+        # Add more environment variables as needed
+
+  notification_job_latest_release:
+    runs-on: ubuntu-latest
+    name: Notify when team mentioned (latest release)
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Notify Teams (from latest release)
       uses: cmpsoares/gh-team-mention-notifier@v1.0.3
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
