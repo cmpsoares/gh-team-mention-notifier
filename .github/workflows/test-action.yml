@@ -34,4 +34,17 @@ jobs:
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed
-    
+
+  notification_job_latest_release_external:
+    runs-on: ubuntu-latest
+    name: Notify when team mentioned (latest release)
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Run container (from latest release)
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.4
+      with:
+        config_path: './test/config.json'
+      env:
+        TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
+        # Add more environment variables as needed
