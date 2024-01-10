@@ -6,6 +6,10 @@ def main():
     # Define the path for the team secrets configuration
     config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or 'team_secrets_config.json'
 
+    # Initialize variables
+    comment_body = ''
+    html_url = ''
+
     # Load the event data
     event_path = os.getenv('GITHUB_EVENT_PATH')
     if not event_path or not os.path.exists(event_path):
@@ -15,18 +19,21 @@ def main():
     with open(event_path, 'r') as event_file:
         event = json.load(event_file)
 
-    # Check if it's an assignment event for issues or pull requests
-    is_assigned_issue = event.get('issue') and event.get('action') == 'assigned'
-    is_assigned_pr = event.get('pull_request') and event.get('action') == 'assigned'
-
     # Determine if the team is assigned
     team_assigned = False
-    if is_assigned_issue or is_assigned_pr:
-        assignees = event.get('issue', {}).get('assignees', []) + event.get('pull_request', {}).get('assignees', [])
-        for assignee in assignees:
-            if assignee.get('login').lower() == team_id:  # You might need a more robust check here
-                team_assigned = True
-                break
+
+    # Extract relevant data based on the type of event
+    if 'comment' in event:
+        comment_body = event['comment']['body']
+        html_url = event['comment']['html_url']
+    elif 'pull_request' in event:
+        comment_body = event['pull_request']['body']
+        html_url = event['pull_request']['html_url']
+    elif 'issue' in event:
+        comment_body = event['issue']['body']
+        html_url = event['issue']['html_url']
+        if event.get('action') == 'assigned':
+            team_assigned = True
 
     # Load the team secrets configuration
     if not os.path.exists(config_path):
