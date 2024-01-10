@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Notify when team mentioned (main branch)
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
     - name: Run container (from main branch code)
       uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:latest
       with:
@@ -23,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Notify when team mentioned (latest release)
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
     - name: Run container (from latest release)
       uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:v1.0.4
       env:
