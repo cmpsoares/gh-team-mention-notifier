@@ -1,12 +1,19 @@
 FROM python:3.9-slim
 
-# Copy the repository contents into the container at / (root)
-COPY ./src/ /
+# Copy the repository contents into the container at /app
+COPY . /app
 
-WORKDIR /
+# Debug: List contents of /app
+RUN ls -la /app
 
-# Install any needed packages specified in requirements.txt
+# Set the working directory to /app
+WORKDIR /app
+
+# Debug: List contents of /app/src
+RUN ls -la /app/src/
+
+# Install any needed dependencies
 RUN pip install --no-cache-dir requests
 
-# Run notify_webhook.py when the container launches
-ENTRYPOINT ["python", "notify_webhook.py"]
+# Run the script
+ENTRYPOINT ["python", "./src/notify_webhook.py"]
