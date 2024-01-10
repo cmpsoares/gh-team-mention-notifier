@@ -5,7 +5,7 @@ branding:
   color: 'purple'
   icon: 'message-square'
 inputs:
-  config-path:
+  config_path:
     description: 'Path to the configuration JSON file.'
     required: false
     default: 'notifications_config.json'

@@ -22,7 +22,7 @@ jobs:
     - name: Notify Teams (from main)
       uses: cmpsoares/gh-team-mention-notifier@main
       with:
-        config-path: 'test/config.json'
+        config_path: 'test/config.json'
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed
@@ -36,7 +36,7 @@ jobs:
     - name: Notify Teams (from latest release)
       uses: cmpsoares/gh-team-mention-notifier@v1.0.3
       with:
-        config-path: 'test/config.json'
+        config_path: 'test/config.json'
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed

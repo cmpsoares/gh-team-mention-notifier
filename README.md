@@ -75,7 +75,7 @@ jobs:
     - name: Notify Teams
       uses: cmpsoares/gh-team-mention-notifier@v1.0.3
       with:
-        config-path: 'notifications_config.json'
+        config_path: 'notifications_config.json'
       env:
         TEAM1_WEBHOOK: ${{ secrets.TEAM1_WEBHOOK }}
         TEAM2_WEBHOOK: ${{ secrets.TEAM2_WEBHOOK }}
