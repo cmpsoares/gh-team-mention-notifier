@@ -7,6 +7,7 @@
 - **Team Mention and Assignment Detection**: Detects mentions and assignments of teams in comments of issues, pull requests, and direct assignments.
 - **Dynamic Configuration**: Custom configuration allows for dynamic mapping of team mentions to webhook URLs via environment variables.
 - **Multiple Platform Support**: Compatible with any service that accepts incoming webhooks.
+- **Dockerized for Consistency**: Runs in a Docker container for consistent testing and deployment environments.
 
 ## Getting Started
 
@@ -73,7 +74,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Notify Teams
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.3
+      uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:latest
       with:
         config_path: 'notifications_config.json'
       env:
@@ -81,6 +82,8 @@ jobs:
         TEAM2_WEBHOOK: ${{ secrets.TEAM2_WEBHOOK }}
         # Add more environment variables as needed
 ```
+
+Replace `cmpsoares` with your GitHub username or the appropriate organization name.
 
 ## Contributing
 

@@ -1,4 +1,5 @@
 name: Team Mention Notification Test
+
 on:
   push:
     branches:
@@ -17,12 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Notify when team mentioned (main branch)
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Notify Teams (from main)
-      uses: cmpsoares/gh-team-mention-notifier@main
+    - name: Run container (from main branch code)
+      uses: docker://ghcr.io/${{ github.repository_owner }}/gh-team-mention-notifier:latest
       with:
-        config_path: 'test/config.json'
+        args: "python /app/src/notify_webhook.py"
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed
@@ -31,10 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Notify when team mentioned (latest release)
     steps:
-    - name: Notify Teams (from latest release)
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.3
+    - name: Run container (from latest release)
+      uses: docker://ghcr.io/${{ github.repository_owner }}/gh-team-mention-notifier:v1.0.4
       with:
-        config_path: 'test/config.json'
+        args: "python /app/src/notify_webhook.py"
       env:
         TEST_FAKE_SECRET: ${{ secrets.TEST_FAKE_SECRET }}
         # Add more environment variables as needed
