@@ -73,7 +73,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Notify Teams
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.2
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.3
       with:
         config-path: 'notifications_config.json'
       env:
