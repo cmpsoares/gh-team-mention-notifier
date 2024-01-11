@@ -13,7 +13,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-
     - name: Run container (from main branch code)
       uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:latest
       with:
@@ -38,11 +37,10 @@ jobs:
 
   notification_job_latest_release_external:
     runs-on: ubuntu-latest
-    name: Notify when team mentioned (latest release)
+    name: Notify when team mentioned (latest release/Action call)
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-  
     - name: Run GitHub Action (from latest release)
       uses: cmpsoares/gh-team-mention-notifier@v1.0.4
       with:
