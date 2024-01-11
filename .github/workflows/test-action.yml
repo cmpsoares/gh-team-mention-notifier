@@ -13,15 +13,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    
-    - name: Pull and Run Docker Container
-      run: |
-        docker pull ghcr.io/cmpsoares/gh-team-mention-notifier:latest
-        docker run \
-          -e TEST_FAKE_SECRET=${{ secrets.TEST_FAKE_SECRET }} \
-          -v ${{ github.workspace }}/test:/app/test \
-          ghcr.io/cmpsoares/gh-team-mention-notifier:latest \
-          python /app/src/notify_webhook.py --config-path /app/test/config.json
 
     - name: Run container (from main branch code)
       uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:latest

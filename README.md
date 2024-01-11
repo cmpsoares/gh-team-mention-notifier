@@ -83,8 +83,6 @@ jobs:
         # Add more environment variables as needed
 ```
 
-Replace `cmpsoares` with your GitHub username or the appropriate organization name.
-
 ## Contributing
 
 Contributions to `gh-team-mention-notifier` are welcome! Please feel free to report issues, suggest features, or submit pull requests.
