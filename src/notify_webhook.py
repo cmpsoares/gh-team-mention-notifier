@@ -64,7 +64,7 @@ def main():
             else:
                 print(f"Failed to send notification to {target_team_name}")
         else:
-            print(f"No mentions or assignments of {target_team_name} found.")
+            print(f"No mentions or assignments of {target_team_name}({mention_tag}) found.")
 
     if not notification_sent:
         print("No relevant team mentions or assignments found, no notifications sent.")
