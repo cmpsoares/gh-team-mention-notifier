@@ -7,7 +7,7 @@ def debug_log(message):
     if os.getenv('RUNNER_DEBUG') or os.getenv('ACTIONS_STEP_DEBUG') or (os.getenv('ACTIONS_RUNNER_DEBUG', 'false').lower() == 'true'):
         print(message)
 
-def create_message_for_teams(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at):
+def create_message_for_teams(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at, creator_full_name):
     # Creating an Adaptive Card for Microsoft Teams
     return {
         "type": "message",
@@ -41,7 +41,7 @@ def create_message_for_teams(action, target_team_name, event_type, html_url, tit
                                     "items": [
                                         {
                                             "type": "TextBlock",
-                                            "text": creator,
+                                            "text": f"{creator} ({creator_full_name})",
                                             "weight": "Bolder"
                                         },
                                         {
