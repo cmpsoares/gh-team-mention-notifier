@@ -28,7 +28,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Run container (from latest release)
-      uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:v1.0.6
+      uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:v1.0.7
       with:
         config_path: './test/config.json'
       env:
@@ -56,7 +56,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Run GitHub Action (from latest release)
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.6
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.7
       with:
         config_path: './test/config.json'
       env:
