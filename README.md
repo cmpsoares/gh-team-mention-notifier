@@ -40,7 +40,7 @@ Duplicate the `notifications_config.json.example` file and rename it to `notific
 ]
 ```
 
-Alternatively, you can set up an organization-wide environment variable `GH_TEAM_MENTION_CONFIG_VAR` with your JSON configuration for centralized management across multiple repositories.
+Alternatively, you can set up an organization-wide environment variable `GH_TEAM_MENTION_CONFIG_VAR` with your JSON configuration in YAML multiline text block format (using `|`) for centralized management across multiple repositories.
 
 #### 2. **Commit the Configuration File**
 
@@ -74,7 +74,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Notify Teams
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.20
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.21
       with:
         config_path: 'notifications_config.json' # Optional if using GH_TEAM_MENTION_CONFIG_VAR
       env:

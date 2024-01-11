@@ -91,7 +91,20 @@ def create_message_for_slack(action, target_team_name, event_type, html_url, tit
 def main():
     # Try fetching configuration from an environment variable
     env_config = os.getenv('GH_TEAM_MENTION_CONFIG_VAR')
-    team_secrets = json.loads(env_config) if env_config else None
+    debug_log(f"Configuration from environment variable (GH_TEAM_MENTION_CONFIG_VAR): {env_config}")
+
+    if env_config:
+        try:
+            # Convert multiline string to single line
+            env_config = ''.join(env_config.splitlines())
+            team_secrets = json.loads(env_config)
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON from environment variable: {e}")
+            team_secrets = None
+    else:
+        print("No environment variable for configuration found.")
+        team_secrets = None
+    debug_log(f"team_secrets: {team_secrets}")
 
     # If environment variable is not set or empty, fallback to config file
     if not team_secrets:
