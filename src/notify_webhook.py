@@ -106,7 +106,7 @@ def main():
     debug_log(f"Event type: {event_type}")
 
     # Extract relevant data based on the type of event
-    comment_body, html_url, title, creator, creator_avatar, event_created_at, creator_full_name = '', '', '', '', '', ''
+    comment_body, html_url, title, creator, creator_avatar, event_created_at, creator_full_name = '', '', '', '', '', '', ''
     if 'comment' in event:
         comment_body = event['comment']['body']
         html_url = event['comment']['html_url']
