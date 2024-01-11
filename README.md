@@ -74,7 +74,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Notify Teams
-      uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:latest
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.5
       with:
         config_path: 'notifications_config.json'
       env:
