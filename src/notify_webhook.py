@@ -6,6 +6,57 @@ def debug_log(message):
     if os.getenv('RUNNER_DEBUG') or os.getenv('ACTIONS_STEP_DEBUG') or (os.getenv('ACTIONS_RUNNER_DEBUG', 'false').lower() == 'true'):
         print(message)
 
+def create_message_for_teams(action, target_team_name, event_type, html_url, title, creator):
+    # Creating an Adaptive Card for Microsoft Teams
+    return {
+        "type": "message",
+        "attachments": [
+            {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "contentUrl": None,
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.2",
+                    "body": [
+                        {
+                            "type": "TextBlock",
+                            "text": f"{target_team_name} {action} in GitHub",
+                            "weight": "Bolder",
+                            "size": "Medium"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": f"Event: {event_type}",
+                            "isSubtle": True
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": f"Title: {title}",
+                            "wrap": True
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": f"Created by: {creator}",
+                            "wrap": True
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": f"Details: [GitHub Link]({html_url})",
+                            "wrap": True
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+
+def create_message_for_slack(action, target_team_name, event_type, html_url, title, creator):
+    # Creating a message for Slack
+    return {
+        "text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator}"
+    }
+
 def main():
     # Define the path for the team secrets configuration
     config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or 'team_secrets_config.json'
@@ -24,16 +75,21 @@ def main():
     debug_log(f"Event type: {event_type}")
 
     # Extract relevant data based on the type of event
-    comment_body, html_url = '', ''
+    comment_body, html_url, title, creator = '', '', '', ''
     if 'comment' in event:
         comment_body = event['comment']['body']
         html_url = event['comment']['html_url']
+        creator = event['comment']['user']['login']
     elif 'pull_request' in event:
         comment_body = event['pull_request']['body']
         html_url = event['pull_request']['html_url']
+        title = event['pull_request']['title']
+        creator = event['pull_request']['user']['login']
     elif 'issue' in event:
         comment_body = event['issue']['body']
         html_url = event['issue']['html_url']
+        title = event['issue']['title']
+        creator = event['issue']['user']['login']
 
     # Load the team secrets configuration
     if not os.path.exists(config_path):
@@ -72,8 +128,14 @@ def main():
 
         if is_mentioned or is_assigned or is_requested_for_review:
             action = "mentioned" if is_mentioned else "assigned" if is_assigned else "requested for review"
-            message = f"{target_team_name} {action} in GitHub ({event_type}): {html_url}"
-            payload = {"text": message}
+            # Determine the payload based on the webhook URL
+            if 'office.com' in webhook_url:
+                payload = create_message_for_teams(action, target_team_name, event_type, html_url, title, creator)
+            elif 'slack.com' in webhook_url:
+                payload = create_message_for_slack(action, target_team_name, event_type, html_url, title, creator)
+            else:
+                payload = {"text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator}"}
+
             response = requests.post(webhook_url, json=payload)
             if response.status_code == 200:
                 print(f"Notification sent successfully to {target_team_name}")
