@@ -1,12 +1,13 @@
 import json
 import os
 import requests
+from datetime import datetime
 
 def debug_log(message):
     if os.getenv('RUNNER_DEBUG') or os.getenv('ACTIONS_STEP_DEBUG') or (os.getenv('ACTIONS_RUNNER_DEBUG', 'false').lower() == 'true'):
         print(message)
 
-def create_message_for_teams(action, target_team_name, event_type, html_url, title, creator):
+def create_message_for_teams(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at):
     # Creating an Adaptive Card for Microsoft Teams
     return {
         "type": "message",
@@ -20,15 +21,45 @@ def create_message_for_teams(action, target_team_name, event_type, html_url, tit
                     "version": "1.2",
                     "body": [
                         {
-                            "type": "TextBlock",
-                            "text": f"{target_team_name} {action} in GitHub",
-                            "weight": "Bolder",
-                            "size": "Medium"
+                            "type": "ColumnSet",
+                            "columns": [
+                                {
+                                    "type": "Column",
+                                    "width": "auto",
+                                    "items": [
+                                        {
+                                            "type": "Image",
+                                            "url": creator_avatar,
+                                            "size": "Small",
+                                            "style": "Person"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "Column",
+                                    "width": "stretch",
+                                    "items": [
+                                        {
+                                            "type": "TextBlock",
+                                            "text": creator,
+                                            "weight": "Bolder"
+                                        },
+                                        {
+                                            "type": "TextBlock",
+                                            "text": datetime.strptime(event_created_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S'),
+                                            "isSubtle": True,
+                                            "spacing": "None"
+                                        }
+                                    ]
+                                }
+                            ]
                         },
                         {
                             "type": "TextBlock",
-                            "text": f"Event: {event_type}",
-                            "isSubtle": True
+                            "text": f"{target_team_name} {action} in GitHub ({event_type})",
+                            "weight": "Bolder",
+                            "size": "Medium",
+                            "wrap": True
                         },
                         {
                             "type": "TextBlock",
@@ -36,14 +67,14 @@ def create_message_for_teams(action, target_team_name, event_type, html_url, tit
                             "wrap": True
                         },
                         {
-                            "type": "TextBlock",
-                            "text": f"Created by: {creator}",
-                            "wrap": True
-                        },
-                        {
-                            "type": "TextBlock",
-                            "text": f"Details: [GitHub Link]({html_url})",
-                            "wrap": True
+                            "type": "ActionSet",
+                            "actions": [
+                                {
+                                    "type": "Action.OpenUrl",
+                                    "title": "View details on GitHub",
+                                    "url": html_url
+                                }
+                            ]
                         }
                     ]
                 }
@@ -51,10 +82,10 @@ def create_message_for_teams(action, target_team_name, event_type, html_url, tit
         ]
     }
 
-def create_message_for_slack(action, target_team_name, event_type, html_url, title, creator):
+def create_message_for_slack(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at):
     # Creating a message for Slack
     return {
-        "text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator}"
+        "text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator} on {datetime.strptime(event_created_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')}\n![Avatar]({creator_avatar})"
     }
 
 def main():
@@ -75,21 +106,27 @@ def main():
     debug_log(f"Event type: {event_type}")
 
     # Extract relevant data based on the type of event
-    comment_body, html_url, title, creator = '', '', '', ''
+    comment_body, html_url, title, creator, creator_avatar, event_created_at = '', '', '', '', '', ''
     if 'comment' in event:
         comment_body = event['comment']['body']
         html_url = event['comment']['html_url']
         creator = event['comment']['user']['login']
+        creator_avatar = event['comment']['user']['avatar_url']
+        event_created_at = event['comment']['created_at']
     elif 'pull_request' in event:
         comment_body = event['pull_request']['body']
         html_url = event['pull_request']['html_url']
         title = event['pull_request']['title']
         creator = event['pull_request']['user']['login']
+        creator_avatar = event['pull_request']['user']['avatar_url']
+        event_created_at = event['pull_request']['created_at']
     elif 'issue' in event:
         comment_body = event['issue']['body']
         html_url = event['issue']['html_url']
         title = event['issue']['title']
         creator = event['issue']['user']['login']
+        creator_avatar = event['issue']['user']['avatar_url']
+        event_created_at = event['issue']['created_at']
 
     # Load the team secrets configuration
     if not os.path.exists(config_path):
@@ -130,11 +167,11 @@ def main():
             action = "mentioned" if is_mentioned else "assigned" if is_assigned else "requested for review"
             # Determine the payload based on the webhook URL
             if 'office.com' in webhook_url:
-                payload = create_message_for_teams(action, target_team_name, event_type, html_url, title, creator)
+                payload = create_message_for_teams(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at)
             elif 'slack.com' in webhook_url:
-                payload = create_message_for_slack(action, target_team_name, event_type, html_url, title, creator)
+                payload = create_message_for_slack(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at)
             else:
-                payload = {"text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator}"}
+                payload = {"text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator} on {datetime.strptime(event_created_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')}\n![Avatar]({creator_avatar})"}
 
             response = requests.post(webhook_url, json=payload)
             if response.status_code == 200:
