@@ -7,7 +7,7 @@ def debug_log(message):
     if os.getenv('RUNNER_DEBUG') or os.getenv('ACTIONS_STEP_DEBUG') or (os.getenv('ACTIONS_RUNNER_DEBUG', 'false').lower() == 'true'):
         print(message)
 
-def create_message_for_teams(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at, creator_full_name):
+def create_message_for_teams(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at):
     # Creating an Adaptive Card for Microsoft Teams
     return {
         "type": "message",
@@ -41,7 +41,7 @@ def create_message_for_teams(action, target_team_name, event_type, html_url, tit
                                     "items": [
                                         {
                                             "type": "TextBlock",
-                                            "text": f"{creator} ({creator_full_name})",
+                                            "text": f"{creator}",
                                             "weight": "Bolder"
                                         },
                                         {
@@ -82,15 +82,25 @@ def create_message_for_teams(action, target_team_name, event_type, html_url, tit
         ]
     }
 
-def create_message_for_slack(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at, creator_full_name):
+def create_message_for_slack(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at):
     # Creating a message for Slack
     return {
-        "text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator} ({creator_full_name}) on {datetime.strptime(event_created_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')}\n![Avatar]({creator_avatar})"
+        "text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator} on {datetime.strptime(event_created_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')}\n![Avatar]({creator_avatar})"
     }
 
 def main():
-    # Define the path for the team secrets configuration
-    config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or 'team_secrets_config.json'
+    # Try fetching configuration from an environment variable
+    env_config = os.getenv('ORG_TEAM_MENTION_CONFIG')
+    team_secrets = json.loads(env_config) if env_config else None
+
+    # If environment variable is not set or empty, fallback to config file
+    if not team_secrets:
+        config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or 'team_secrets_config.json'
+        if not os.path.exists(config_path):
+            print(f"Configuration file not found at {config_path}.")
+            return
+        with open(config_path, 'r') as file:
+            team_secrets = json.load(file)
 
     # Load the event data
     event_path = os.getenv('GITHUB_EVENT_PATH')
@@ -106,14 +116,13 @@ def main():
     debug_log(f"Event type: {event_type}")
 
     # Extract relevant data based on the type of event
-    comment_body, html_url, title, creator, creator_avatar, event_created_at, creator_full_name = '', '', '', '', '', '', ''
+    comment_body, html_url, title, creator, creator_avatar, event_created_at = '', '', '', '', '', ''
     if 'comment' in event:
         comment_body = event['comment']['body']
         html_url = event['comment']['html_url']
         creator = event['comment']['user']['login']
         creator_avatar = event['comment']['user']['avatar_url']
         event_created_at = event['comment']['created_at']
-        creator_full_name = event['comment']['user']['name'] #TODO: Fix name and figure out the correct fullname field
     elif 'pull_request' in event:
         comment_body = event['pull_request']['body']
         html_url = event['pull_request']['html_url']
@@ -121,7 +130,6 @@ def main():
         creator = event['pull_request']['user']['login']
         creator_avatar = event['pull_request']['user']['avatar_url']
         event_created_at = event['pull_request']['created_at']
-        creator_full_name = event['pull_request']['user']['name']
     elif 'issue' in event:
         comment_body = event['issue']['body']
         html_url = event['issue']['html_url']
@@ -129,7 +137,6 @@ def main():
         creator = event['issue']['user']['login']
         creator_avatar = event['issue']['user']['avatar_url']
         event_created_at = event['issue']['created_at']
-        creator_full_name = event['issue']['user']['name']
 
     # Load the team secrets configuration
     if not os.path.exists(config_path):
@@ -170,11 +177,11 @@ def main():
             action = "mentioned" if is_mentioned else "assigned" if is_assigned else "requested for review"
             # Determine the payload based on the webhook URL
             if 'office.com' in webhook_url:
-                payload = create_message_for_teams(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at, creator_full_name)
+                payload = create_message_for_teams(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at)
             elif 'slack.com' in webhook_url:
-                payload = create_message_for_slack(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at, creator_full_name)
+                payload = create_message_for_slack(action, target_team_name, event_type, html_url, title, creator, creator_avatar, event_created_at)
             else:
-                payload = {"text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator} ({creator_full_name}) on {datetime.strptime(event_created_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')}\n![Avatar]({creator_avatar})"}
+                payload = {"text": f"{target_team_name} {action} in GitHub ({event_type}): {html_url}\nTitle: {title}\nCreated by: {creator} on {datetime.strptime(event_created_at, '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')}\n![Avatar]({creator_avatar})"}
 
             response = requests.post(webhook_url, json=payload)
             if response.status_code == 200:
