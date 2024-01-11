@@ -2,6 +2,10 @@ import json
 import os
 import requests
 
+def debug_log(message):
+    if os.getenv('ACTIONS_RUNNER_DEBUG', 'false').lower() == 'true':
+        print(message)
+
 def main():
     # Define the path for the team secrets configuration
     config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or 'team_secrets_config.json'
@@ -47,19 +51,18 @@ def main():
         mention_tag = f"@{org}/{team_id}"
 
         if not webhook_url:
-            print(f"No webhook URL found for {org}/{team_id} (secret {webhook_secret_name}).")
-            continue
+            debug_log(f"No webhook URL found for {org}/{team_id} (secret {webhook_secret_name}).")
 
         # Check if the team is mentioned, assigned, or requested for review
         is_mentioned = mention_tag in comment_body
-        print(f"Checking for mentions of {mention_tag} in {comment_body}")
+        debug_log(f"Checking for mentions of {mention_tag} in {comment_body}")
 
         assignees = event.get('assignees', [])
-        print(f"Checking for assignments of {mention_tag} in {assignees}")
+        debug_log(f"Checking for assignments of {mention_tag} in {assignees}")
         is_assigned = any(mention_tag in assignee['login'] for assignee in assignees)
 
         reviewers = event['pull_request'].get('requested_reviewers', []) if 'pull_request' in event else []
-        print(f"Checking for review requests of {mention_tag} in {reviewers}")
+        debug_log(f"Checking for review requests of {mention_tag} in {reviewers}")
         is_requested_for_review = any(mention_tag in reviewer['login'] for reviewer in reviewers)
 
         if is_mentioned or is_assigned or is_requested_for_review:
@@ -73,7 +76,7 @@ def main():
             else:
                 print(f"Failed to send notification to {target_team_name}")
         else:
-            print(f"No mentions, assignments, or review requests of {target_team_name}({mention_tag}) found.")
+            debug_log(f"No mentions, assignments, or review requests of {target_team_name}({mention_tag}) found.")
 
     if not notification_sent:
         print("No relevant team mentions, assignments, or review requests found, no notifications sent.")
