@@ -113,7 +113,7 @@ def main():
         creator = event['comment']['user']['login']
         creator_avatar = event['comment']['user']['avatar_url']
         event_created_at = event['comment']['created_at']
-        creator_full_name = event['comment']['user']['name']
+        creator_full_name = event['comment']['user']['name'] #TODO: Fix name and figure out the correct fullname field
     elif 'pull_request' in event:
         comment_body = event['pull_request']['body']
         html_url = event['pull_request']['html_url']
