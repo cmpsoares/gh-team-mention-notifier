@@ -67,7 +67,7 @@ def main():
 
         requested_teams = event['pull_request'].get('requested_teams', []) if 'pull_request' in event else []
         debug_log(f"Checking for review requests of {org}/{team_id} in {requested_teams}")
-        team_pattern = f"https://github.com/{org}/teams/{team_id}"
+        team_pattern = f"https://github.com/orgs/{org}/teams/{team_id}"
         is_requested_for_review = any(team_pattern.lower() in team.get('html_url', '').lower() for team in requested_teams)
 
         if is_mentioned or is_assigned or is_requested_for_review:
