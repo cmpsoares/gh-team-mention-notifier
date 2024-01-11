@@ -5,8 +5,8 @@
 ## Features
 
 - **Team Mention and Assignment Detection**: Detects mentions and assignments of teams in comments of issues, pull requests, and direct assignments.
-- **Dynamic Configuration**: Custom configuration allows for dynamic mapping of team mentions to webhook URLs via environment variables.
-- **Multiple Platform Support**: Compatible with any service that accepts incoming webhooks.
+- **Dynamic Configuration**: Supports custom configuration via a JSON file or organization-level environment variable, enabling dynamic mapping of team mentions to webhook URLs.
+- **Multiple Platform Support**: Compatible with any service that accepts incoming webhooks, including Slack and Microsoft Teams.
 - **Dockerized for Consistency**: Runs in a Docker container for consistent testing and deployment environments.
 
 ## Getting Started
@@ -40,11 +40,11 @@ Duplicate the `notifications_config.json.example` file and rename it to `notific
 ]
 ```
 
-This file will be used by the GitHub Action to determine which webhook URLs (stored as secrets) correspond to which team mentions.
+Alternatively, you can set up an organization-wide environment variable `GH_TEAM_MENTION_CONFIG_VAR` with your JSON configuration for centralized management across multiple repositories.
 
 #### 2. **Commit the Configuration File**
 
-Commit the `notifications_config.json` file to your repository so the GitHub Action can access it. As this file contains only references to the secrets and not the actual webhook URLs, it's safe to commit.
+If using a configuration file, commit the `notifications_config.json` file to your repository so the GitHub Action can access it. As this file contains only references to the secrets and not the actual webhook URLs, it's safe to commit.
 
 #### 3. **Set Up Secrets**
 
@@ -76,10 +76,11 @@ jobs:
     - name: Notify Teams
       uses: cmpsoares/gh-team-mention-notifier@v1.0.20
       with:
-        config_path: 'notifications_config.json'
+        config_path: 'notifications_config.json' # Optional if using GH_TEAM_MENTION_CONFIG_VAR
       env:
         TEAM1_WEBHOOK: ${{ secrets.TEAM1_WEBHOOK }}
         TEAM2_WEBHOOK: ${{ secrets.TEAM2_WEBHOOK }}
+        GH_TEAM_MENTION_CONFIG_VAR: ${{ secrets.GH_TEAM_MENTION_CONFIG_VAR }} # Optional if using a config file
         # Add more environment variables as needed
 ```
 

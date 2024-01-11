@@ -90,7 +90,7 @@ def create_message_for_slack(action, target_team_name, event_type, html_url, tit
 
 def main():
     # Try fetching configuration from an environment variable
-    env_config = os.getenv('ORG_TEAM_MENTION_CONFIG')
+    env_config = os.getenv('GH_TEAM_MENTION_CONFIG_VAR')
     team_secrets = json.loads(env_config) if env_config else None
 
     # If environment variable is not set or empty, fallback to config file
