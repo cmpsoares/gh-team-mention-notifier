@@ -20,6 +20,9 @@ def main():
         event = json.load(event_file)
         event_type = event.get('action', 'unknown event')
 
+    debug_log(f"Event data: {event}")
+    debug_log(f"Event type: {event_type}")
+
     # Extract relevant data based on the type of event
     comment_body, html_url = '', ''
     if 'comment' in event:
