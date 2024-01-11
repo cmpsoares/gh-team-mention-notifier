@@ -80,7 +80,7 @@ jobs:
       env:
         TEAM1_WEBHOOK: ${{ secrets.TEAM1_WEBHOOK }}
         TEAM2_WEBHOOK: ${{ secrets.TEAM2_WEBHOOK }}
-        GH_TEAM_MENTION_CONFIG_VAR: ${{ secrets.GH_TEAM_MENTION_CONFIG_VAR }} # Optional if using a config file
+        GH_TEAM_MENTION_CONFIG_VAR: ${{ env.GH_TEAM_MENTION_CONFIG_VAR }} # Optional if using a config file
         # Add more environment variables as needed
 ```
 
