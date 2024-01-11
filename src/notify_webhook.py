@@ -45,16 +45,17 @@ def main():
 
     # Check for mentions, assignments, or review requests
     notification_sent = False
-    for team in team_secrets:
-        org = team['org']
-        team_id = team['team_id'].lower()
-        webhook_secret_name = team['webhook_secret_name']
-        target_team_name = team.get('target_team_name', f"@{org}/{team_id}")
+    for team_secret in team_secrets:
+        org = team_secret['org']
+        team_id = team_secret['team_id'].lower()
+        webhook_secret_name = team_secret['webhook_secret_name']
+        target_team_name = team_secret.get('target_team_name', f"@{org}/{team_id}")
         webhook_url = os.getenv(webhook_secret_name)
         mention_tag = f"@{org}/{team_id}"
 
         if not webhook_url:
             debug_log(f"No webhook URL found for {org}/{team_id} (secret {webhook_secret_name}).")
+            continue
 
         # Check if the team is mentioned, assigned, or requested for review
         is_mentioned = mention_tag in comment_body
@@ -64,9 +65,10 @@ def main():
         debug_log(f"Checking for assignments of {mention_tag} in {assignees}")
         is_assigned = any(mention_tag in assignee['login'] for assignee in assignees)
 
-        reviewers = event['pull_request'].get('requested_reviewers', []) if 'pull_request' in event else []
-        debug_log(f"Checking for review requests of {mention_tag} in {reviewers}")
-        is_requested_for_review = any(mention_tag in reviewer['login'] for reviewer in reviewers)
+        requested_teams = event['pull_request'].get('requested_teams', []) if 'pull_request' in event else []
+        debug_log(f"Checking for review requests of {org}/{team_id} in {requested_teams}")
+        team_pattern = f"https://github.com/{org}/teams/{team_id}"
+        is_requested_for_review = any(team_pattern.lower() in team.get('html_url', '').lower() for team in requested_teams)
 
         if is_mentioned or is_assigned or is_requested_for_review:
             action = "mentioned" if is_mentioned else "assigned" if is_assigned else "requested for review"
