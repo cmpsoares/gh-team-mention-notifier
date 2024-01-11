@@ -42,7 +42,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Run GitHub Action (from latest release)
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.4
+      uses: cmpsoares/gh-team-mention-notifier@main
       with:
         config_path: './test/config.json'
       env:
