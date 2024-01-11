@@ -36,13 +36,13 @@ def main():
     with open(config_path, 'r') as file:
         team_secrets = json.load(file)
 
-    # Check for mentions or assignments
+    # Check for mentions, assignments, or review requests
     notification_sent = False
     for team in team_secrets:
         org = team['org']
         team_id = team['team_id'].lower()
         webhook_secret_name = team['webhook_secret_name']
-        target_team_name = team.get('target_team_name', f"@{team_id}")
+        target_team_name = team.get('target_team_name', f"@{org}/{team_id}")
         webhook_url = os.getenv(webhook_secret_name)
         mention_tag = f"@{org}/{team_id}"
 
@@ -50,17 +50,20 @@ def main():
             print(f"No webhook URL found for {org}/{team_id} (secret {webhook_secret_name}).")
             continue
 
-        # Check if the team is mentioned or assigned
+        # Check if the team is mentioned, assigned, or requested for review
         is_mentioned = mention_tag in comment_body
         print(f"Checking for mentions of {mention_tag} in {comment_body}")
 
         assignees = event.get('assignees', [])
         print(f"Checking for assignments of {mention_tag} in {assignees}")
         is_assigned = any(mention_tag in assignee['login'] for assignee in assignees)
-        
 
-        if is_mentioned or is_assigned:
-            action = "mentioned" if is_mentioned else "assigned"
+        reviewers = event['pull_request'].get('requested_reviewers', []) if 'pull_request' in event else []
+        print(f"Checking for review requests of {mention_tag} in {reviewers}")
+        is_requested_for_review = any(mention_tag in reviewer['login'] for reviewer in reviewers)
+
+        if is_mentioned or is_assigned or is_requested_for_review:
+            action = "mentioned" if is_mentioned else "assigned" if is_assigned else "requested for review"
             message = f"{target_team_name} {action} in GitHub ({event_type}): {html_url}"
             payload = {"text": message}
             response = requests.post(webhook_url, json=payload)
@@ -70,10 +73,10 @@ def main():
             else:
                 print(f"Failed to send notification to {target_team_name}")
         else:
-            print(f"No mentions or assignments of {target_team_name}({mention_tag}) found.")
+            print(f"No mentions, assignments, or review requests of {target_team_name}({mention_tag}) found.")
 
     if not notification_sent:
-        print("No relevant team mentions or assignments found, no notifications sent.")
+        print("No relevant team mentions, assignments, or review requests found, no notifications sent.")
 
 if __name__ == "__main__":
     main()
