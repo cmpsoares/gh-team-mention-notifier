@@ -14,6 +14,7 @@ def main():
 
     with open(event_path, 'r') as event_file:
         event = json.load(event_file)
+        event_type = event.get('action', 'unknown event')
 
     # Extract relevant data based on the type of event
     comment_body, html_url = '', ''
@@ -49,13 +50,18 @@ def main():
             print(f"No webhook URL found for {org}/{team_id} (secret {webhook_secret_name}).")
             continue
 
-        # Check if the team is mentioned in the comment body or assigned
+        # Check if the team is mentioned or assigned
         is_mentioned = mention_tag in comment_body
-        is_assigned = any(mention_tag in assignee['login'] for assignee in event.get('assignees', []))
+        print(f"Checking for mentions of {mention_tag} in {comment_body}")
+
+        assignees = event.get('assignees', [])
+        print(f"Checking for assignments of {mention_tag} in {assignees}")
+        is_assigned = any(mention_tag in assignee['login'] for assignee in assignees)
+        
 
         if is_mentioned or is_assigned:
             action = "mentioned" if is_mentioned else "assigned"
-            message = f"{target_team_name} {action} in GitHub: {html_url}"
+            message = f"{target_team_name} {action} in GitHub ({event_type}): {html_url}"
             payload = {"text": message}
             response = requests.post(webhook_url, json=payload)
             if response.status_code == 200:

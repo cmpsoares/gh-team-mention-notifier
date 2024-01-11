@@ -2,9 +2,9 @@ name: Team Mention Notification Test
 
 on:
   issues:
-    types: [opened, edited, reopened]
+    types: [opened, edited, reopened, assigned]
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited, ready_for_review, review_requested]
   issue_comment:
     types: [created, edited]
   pull_request_review:
@@ -38,7 +38,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Run container (from latest release)
-      uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:v1.0.7
+      uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:v1.0.8
       with:
         config_path: './test/config.json'
       env:
@@ -66,7 +66,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Run GitHub Action (from latest release)
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.7
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.8
       with:
         config_path: './test/config.json'
       env:
