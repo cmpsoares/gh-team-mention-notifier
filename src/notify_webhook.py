@@ -89,31 +89,12 @@ def create_message_for_slack(action, target_team_name, event_type, html_url, tit
     }
 
 def main():
-    # Try fetching configuration from an environment variable
-    env_config = os.getenv('GH_TEAM_MENTION_CONFIG_VAR')
-    debug_log(f"Configuration from environment variable (GH_TEAM_MENTION_CONFIG_VAR): {env_config}")
-
-    if env_config:
-        try:
-            # Convert multiline string to single line
-            env_config = ''.join(env_config.splitlines())
-            team_secrets = json.loads(env_config)
-        except json.JSONDecodeError as e:
-            print(f"Error parsing JSON from environment variable: {e}")
-            team_secrets = None
-    else:
-        print("No environment variable for configuration found.")
-        team_secrets = None
-    debug_log(f"team_secrets: {team_secrets}")
-
-    # If environment variable is not set or empty, fallback to config file
-    if not team_secrets:
-        config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or 'team_secrets_config.json'
-        if not os.path.exists(config_path):
-            print(f"Configuration file not found at {config_path}.")
-            return
-        with open(config_path, 'r') as file:
-            team_secrets = json.load(file)
+    config_path = os.getenv('INPUT_CONFIG_PATH') or os.getenv('NOTIFICATIONS_CONFIG_PATH') or 'team_secrets_config.json'
+    if not os.path.exists(config_path):
+        print(f"Configuration file not found at {config_path}.")
+        return
+    with open(config_path, 'r') as file:
+        team_secrets = json.load(file)
 
     # Load the event data
     event_path = os.getenv('GITHUB_EVENT_PATH')
