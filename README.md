@@ -1,4 +1,4 @@
-S# GitHub Team Mention Notifier (gh-team-mention-notifier)
+# GitHub Team Mention Notifier (gh-team-mention-notifier)
 
 `gh-team-mention-notifier` is a GitHub Action designed to notify specified communication platforms via webhooks when a team is mentioned or assigned in issues, PRs, or comments. It's compatible with Slack, Microsoft Teams, and other webhook-enabled services.
 
