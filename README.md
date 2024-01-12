@@ -1,11 +1,11 @@
-# GitHub Team Mention Notifier (gh-team-mention-notifier)
+S# GitHub Team Mention Notifier (gh-team-mention-notifier)
 
 `gh-team-mention-notifier` is a GitHub Action designed to notify specified communication platforms via webhooks when a team is mentioned or assigned in issues, PRs, or comments. It's compatible with Slack, Microsoft Teams, and other webhook-enabled services.
 
 ## Features
 
 - **Team Mention and Assignment Detection**: Detects mentions and assignments of teams in comments of issues, pull requests, and direct assignments.
-- **Dynamic Configuration**: Supports custom configuration via a JSON file or organization-level environment variable, enabling dynamic mapping of team mentions to webhook URLs.
+- **Customizable Configuration**: Use a JSON file to map team mentions to webhook URLs.
 - **Multiple Platform Support**: Compatible with any service that accepts incoming webhooks, including Slack and Microsoft Teams.
 - **Dockerized for Consistency**: Runs in a Docker container for consistent testing and deployment environments.
 
@@ -21,7 +21,7 @@
 
 #### 1. **Create and Configure the Configuration File**
 
-Duplicate the `notifications_config.json.example` file and rename it to `notifications_config.json`. Fill in the mappings of your team mentions to the environment variable names for your webhook URLs. Optionally, include a different target team name for the webhook message.
+Create a file named `notifications_config.json` in your repository with the following structure:
 
 ```json
 [
@@ -40,19 +40,19 @@ Duplicate the `notifications_config.json.example` file and rename it to `notific
 ]
 ```
 
-Alternatively, you can set up an organization-wide environment variable `GH_TEAM_MENTION_CONFIG_VAR` with your JSON configuration in YAML multiline text block format (using `|`) for centralized management across multiple repositories.
+This file maps team mentions to the environment variable names for your webhook URLs.
 
 #### 2. **Commit the Configuration File**
 
-If using a configuration file, commit the `notifications_config.json` file to your repository so the GitHub Action can access it. As this file contains only references to the secrets and not the actual webhook URLs, it's safe to commit.
+Commit the `notifications_config.json` file to your repository for the GitHub Action to access.
 
 #### 3. **Set Up Secrets**
 
-For each team, set up a secret in your repository settings containing the webhook URL. The secret name should match the `webhook_secret_name` you've provided in `notifications_config.json`.
+For each team, set up a secret in your repository settings containing the webhook URL. The secret name should correspond to the `webhook_secret_name` specified in your configuration file.
 
 ### Usage
 
-In your GitHub workflow file (e.g., `.github/workflows/notify.yml`), use the action like this:
+In your GitHub workflow file (e.g., `.github/workflows/notify.yml`), configure the action as follows:
 
 ```yaml
 name: Team Mention Notification
@@ -74,15 +74,55 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Notify Teams
-      uses: cmpsoares/gh-team-mention-notifier@v1.0.21
+      uses: cmpsoares/gh-team-mention-notifier@v1.0.22
       with:
-        config_path: 'notifications_config.json' # Optional if using GH_TEAM_MENTION_CONFIG_VAR
+        config_path: 'notifications_config.json'
       env:
         TEAM1_WEBHOOK: ${{ secrets.TEAM1_WEBHOOK }}
         TEAM2_WEBHOOK: ${{ secrets.TEAM2_WEBHOOK }}
-        GH_TEAM_MENTION_CONFIG_VAR: ${{ vars.GH_TEAM_MENTION_CONFIG_VAR }} # Optional if using a config file
         # Add more environment variables as needed
 ```
+
+### Using Organization-Level Configuration Variables
+
+In scenarios where you need to use organization-level configuration variables with `gh-team-mention-notifier`, follow these steps to set up and reference these variables in your workflow:
+
+#### Setting Up Organization-Level Variables
+
+1. **Create Organization Variables**: Define your configuration variables at the organization level on GitHub. This could include variables like `ORG_TEAM_MENTION_CONFIG` to store the JSON configuration for team mentions.
+
+2. **Set Variable Visibility**: Ensure the variable is set with the appropriate visibility settings. You can choose to make it available to all repositories or select specific repositories within your organization.
+
+#### Updating Workflow to Use Organization Variables
+
+In your GitHub workflow file, update the steps to use the organization variable using the `vars` context. Here's an example:
+
+```yaml
+jobs:
+  notification_job:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Configuration
+      run: |
+        echo "$ORG_TEAM_MENTION_CONFIG" > .github/workflows/team-mention-config.json
+      env:
+        ORG_TEAM_MENTION_CONFIG: ${{ vars.ORG_TEAM_MENTION_CONFIG }}
+
+    - name: Notify Teams
+      uses: cmpsoares/gh-team-mention-notifier@latest
+      with:
+        config_path: '.github/workflows/team-mention-config.json'
+```
+
+In this example, `ORG_TEAM_MENTION_CONFIG` is an organization-level variable that contains the JSON configuration. The workflow writes this configuration to a file, which is then used by the `gh-team-mention-notifier` action.
+
+#### Notes
+
+- Make sure the organization variable `ORG_TEAM_MENTION_CONFIG` is correctly set up and accessible to the repository where the workflow runs.
+- This method is particularly useful for managing configuration centrally at the organization level, especially when the same configuration is shared across multiple repositories.
 
 ## Contributing
 
