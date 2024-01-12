@@ -89,7 +89,7 @@ In scenarios where you need to use organization-level configuration variables wi
 
 #### Setting Up Organization-Level Variables
 
-1. **Create Organization Variables**: Define your configuration variables at the organization level on GitHub. This could include variables like `ORG_TEAM_MENTION_CONFIG` to store the JSON configuration for team mentions.
+1. **Create Organization Variables**: Define your configuration variables at the organization level on GitHub. This could include variables like `ORG_NOTIFICATION_CONFIG` to store the JSON configuration for team mentions.
 
 2. **Set Variable Visibility**: Ensure the variable is set with the appropriate visibility settings. You can choose to make it available to all repositories or select specific repositories within your organization.
 
@@ -107,21 +107,21 @@ jobs:
 
     - name: Setup Configuration
       run: |
-        echo "$ORG_TEAM_MENTION_CONFIG" > .github/workflows/team-mention-config.json
+        echo "$ORG_NOTIFICATION_CONFIG" > .github/workflows/notifications_config.json
       env:
-        ORG_TEAM_MENTION_CONFIG: ${{ vars.ORG_TEAM_MENTION_CONFIG }}
+        ORG_NOTIFICATION_CONFIG: ${{ vars.ORG_NOTIFICATION_CONFIG }}
 
     - name: Notify Teams
       uses: cmpsoares/gh-team-mention-notifier@latest
       with:
-        config_path: '.github/workflows/team-mention-config.json'
+        config_path: '.github/workflows/notifications_config.json'
 ```
 
-In this example, `ORG_TEAM_MENTION_CONFIG` is an organization-level variable that contains the JSON configuration. The workflow writes this configuration to a file, which is then used by the `gh-team-mention-notifier` action.
+In this example, `ORG_NOTIFICATION_CONFIG` is an organization-level variable that contains the JSON configuration. The workflow writes this configuration to a file, which is then used by the `gh-team-mention-notifier` action.
 
 #### Notes
 
-- Make sure the organization variable `ORG_TEAM_MENTION_CONFIG` is correctly set up and accessible to the repository where the workflow runs.
+- Make sure the organization variable `ORG_NOTIFICATION_CONFIG` is correctly set up and accessible to the repository where the workflow runs.
 - This method is particularly useful for managing configuration centrally at the organization level, especially when the same configuration is shared across multiple repositories.
 
 ## Contributing
