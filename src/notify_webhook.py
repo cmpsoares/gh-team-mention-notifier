@@ -93,6 +93,7 @@ def main():
     if not os.path.exists(config_path):
         print(f"Configuration file not found at {config_path}.")
         return
+
     with open(config_path, 'r') as file:
         team_secrets = json.load(file)
 
@@ -105,6 +106,23 @@ def main():
     with open(event_path, 'r') as event_file:
         event = json.load(event_file)
         event_type = event.get('action', 'unknown event')
+
+    # Supported event types with their actions
+    supported_events = {
+        'issue_comment': ['created', 'edited'],
+        'pull_request': ['assigned', 'review_requested'],
+        'issues': ['opened', 'assigned']
+    }
+
+    is_supported = False
+    for main_event, actions in supported_events.items():
+        if main_event in event and event_type in actions:
+            is_supported = True
+            break
+
+    if not is_supported:
+        debug_log(f"Unsupported event or action type: {event_type}. Exiting.")
+        return
 
     debug_log(f"Event data: {event}")
     debug_log(f"Event type: {event_type}")
@@ -131,6 +149,9 @@ def main():
         creator = event['issue']['user']['login']
         creator_avatar = event['issue']['user']['avatar_url']
         event_created_at = event['issue']['created_at']
+    else:
+         debug_log(f"Not the events we're checking.")
+         return
 
     # Load the team secrets configuration
     if not os.path.exists(config_path):
