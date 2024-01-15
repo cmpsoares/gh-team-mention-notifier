@@ -121,7 +121,7 @@ def main():
             break
 
     if not is_supported:
-        debug_log(f"Unsupported event or action type: {event_type}. Exiting.")
+        print(f"Unsupported event or action type: {event_type}. Exiting.")
         return
 
     debug_log(f"Event data: {event}")
