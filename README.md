@@ -57,14 +57,10 @@ In your GitHub workflow file (e.g., `.github/workflows/notify.yml`), configure t
 ```yaml
 name: Team Mention Notification
 on:
-  issue_comment:
-    types: [created, edited]
-  pull_request_review_comment:
-    types: [submitted, edited]
-  pull_request:
-    types: [opened, reopened, assigned, edited, synchronize]
   issues:
-    types: [opened, assigned, edited]
+    types: [opened, edited]
+  pull_request:
+    types: [opened, edited, review_requested]
 
 jobs:
   notification_job:
