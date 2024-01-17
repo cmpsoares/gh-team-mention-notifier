@@ -117,7 +117,7 @@ def main():
     # Supported event types with their actions
     supported_events = {
         'issue_comment': ['created', 'edited'],
-        'pull_request': ['assigned', 'review_requested'],
+        'pull_request': ['opened', 'assigned', 'review_requested'],
         'issues': ['opened', 'assigned']
     }
 
