@@ -3,19 +3,46 @@ updates:
   - package-ecosystem: npm
     directory: "/"
     schedule:
-      interval: daily
-    open-pull-requests-limit: 10
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Lisbon
+    open-pull-requests-limit: 5
     labels:
       - dependencies
       - automation
     commit-message:
       prefix: deps
+      prefix-development: deps-dev
       include: scope
+    groups:
+      prod-minor-patch:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+      dev-minor-patch:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      prod-major:
+        dependency-type: production
+        update-types:
+          - major
+      dev-major:
+        dependency-type: development
+        update-types:
+          - major
 
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Lisbon
+    open-pull-requests-limit: 2
     labels:
       - dependencies
       - automation
@@ -23,25 +50,57 @@ updates:
     commit-message:
       prefix: ci
       include: scope
+    groups:
+      actions-minor-patch:
+        update-types:
+          - minor
+          - patch
+      actions-major:
+        update-types:
+          - major
 
   - package-ecosystem: gomod
     directory: "/"
     schedule:
       interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Lisbon
+    open-pull-requests-limit: 3
     labels:
       - dependencies
       - automation
     commit-message:
       prefix: deps
       include: scope
+    groups:
+      go-minor-patch:
+        update-types:
+          - minor
+          - patch
+      go-major:
+        update-types:
+          - major
 
   - package-ecosystem: bundler
     directory: "/"
     schedule:
       interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Lisbon
+    open-pull-requests-limit: 3
     labels:
       - dependencies
       - automation
     commit-message:
       prefix: deps
       include: scope
+    groups:
+      ruby-minor-patch:
+        update-types:
+          - minor
+          - patch
+      ruby-major:
+        update-types:
+          - major
