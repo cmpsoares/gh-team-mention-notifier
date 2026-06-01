@@ -22,7 +22,7 @@ jobs:
     name: Notify when team mentioned (main branch)
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
     - name: Run container (from main branch code)
       uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:latest
       with:
@@ -36,7 +36,7 @@ jobs:
     name: Notify when team mentioned (latest release)
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
     - name: Run container (from latest release)
       uses: docker://ghcr.io/cmpsoares/gh-team-mention-notifier:v1.0.24
       with:
@@ -50,7 +50,7 @@ jobs:
     name: Notify when team mentioned (latest release/Action call)
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
     - name: Run GitHub Action (from latest release)
       uses: cmpsoares/gh-team-mention-notifier@main
       with:
@@ -64,7 +64,7 @@ jobs:
     name: Notify when team mentioned (Action call - version)
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
     - name: Run GitHub Action (from latest release)
       uses: cmpsoares/gh-team-mention-notifier@v1.0.24
       with:
